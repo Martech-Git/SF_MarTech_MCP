@@ -84,7 +84,8 @@ Format: `sfmcp_<env>_<key_id>_<secret>`. The key_id is a public identifier. The 
 Issue and storage:
 
 - A platform_admin issues keys on the admin page (Section 4). The full key shows once, at issue.
-- Firestore `clients/{key_id}` stores: client name, owner (a named person), HMAC-SHA256 of the secret, environment, grants (roles per BU, Section 4), allowed sources (CIDR list or `gcp-internal`), max tier, created_at, expires_at, status.
+- Firestore `keys/{key_id}` stores: client_id, HMAC-SHA256 of the secret, environment, status, created_at, expires_at, issued_by, and revocation details.
+- Everything that grants capability lives in `policy/clients.yaml`, keyed by client_id: client name, owner (a named person), grants (roles per BU, Section 4), allowed sources (CIDR list or `*`), max tier, enabled flag. Keys hold no grants of their own, so a grant change always goes through a PR.
 - The HMAC pepper lives in Secret Manager. No plaintext key is stored anywhere server side.
 - Keys expire after 90 days at most. Each client may hold two active keys at once, for overlap during rotation.
 
@@ -418,7 +419,7 @@ sf-mcp/
     sf_mcp/
       server.py          # MCP server, streamable HTTP; FastAPI for /approvals, /admin, /healthz
       auth/              # client key validation, source checks, lockout
-      pipeline/          # the ten steps, one module each
+      pipeline/          # steps.py (the ten steps in order), runner.py (runs them, then audits)
       policy/            # loader, evaluator
       tools/             # one folder per tool: schema.py, handler.py, description.md, test_<tool>.py
       sfmc/              # REST client, SOAP client, token cache, error mapper

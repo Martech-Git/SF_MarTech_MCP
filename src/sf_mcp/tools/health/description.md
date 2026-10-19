@@ -1,0 +1,1 @@
+Check that the sf-mcp server is up and see which environment, version and policy bundle answered. Tier T0, read only, no Salesforce call. Use it to confirm a connection before other tools; it returns no marketing data.

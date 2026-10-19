@@ -22,4 +22,21 @@ Code comments, docs and UI copy follow these rules: no em dashes, short sentence
 
 ## Build and test commands
 
-Added in milestone 1.
+Python 3.12. From the repo root:
+
+```bash
+python3.12 -m venv .venv && .venv/bin/pip install --require-hashes -r requirements-dev.lock
+.venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/mypy && .venv/bin/pytest -q
+```
+
+Run locally with in-memory stores and the admin page open to one dev email (local only):
+
+```bash
+SFMCP_ENV=local SFMCP_KEY_PEPPER=$(openssl rand -hex 24) SFMCP_DEV_ADMIN_EMAIL=you@example.com PYTHONPATH=src .venv/bin/python -m sf_mcp
+```
+
+After changing dependencies in `pyproject.toml`, regenerate both lockfiles with `uv pip compile` for Python 3.12 on `x86_64-manylinux_2_28` with `--generate-hashes` (`requirements.lock`, and `requirements-dev.lock` with `--extra dev`).
+
+Log messages are static strings. Never put request, Salesforce or secret values in a log message; structured fields outside the allowlist in `logging_setup.py` are dropped.
+
+Deployment: `docs/DEPLOY_M1_M2.md`. Cloud Build runs the same checks before it builds the image.

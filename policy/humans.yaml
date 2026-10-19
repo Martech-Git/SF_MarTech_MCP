@@ -1,0 +1,7 @@
+# People, identified by their Google sign-in through IAP. Client API keys never hold these roles.
+# platform_admins: issue and revoke keys, set kill switches. No Salesforce data access.
+# approvers: approve T3 actions per business unit (used from milestone 5).
+humans:
+  platform_admins:
+    - ankit.bajpai01@nagarro.com
+  approvers: {}
