@@ -29,7 +29,12 @@ class MCPAuthApp:
         except AuthFailure as failure:
             security_log.warning(
                 "auth failure",
-                extra={"event": "auth_failure", "reason": failure.reason, "key_id": failure.key_id},
+                extra={
+                    "event": "auth_failure",
+                    "reason": failure.reason,
+                    "key_id": failure.key_id,
+                    "source_ip": failure.source_ip,
+                },
             )
             response = JSONResponse(
                 {"error": "unauthorized"},

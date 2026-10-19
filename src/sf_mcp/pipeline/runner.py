@@ -126,6 +126,7 @@ async def run_tool_call(ctx: CallContext, deps: PipelineDeps) -> dict[str, Any]:
             "tool": ctx.tool_name[:128],
             "tool_call_id": ctx.tool_call_id,
             "key_id": ctx.principal.key_id if ctx.principal else None,
+            "source_ip": ctx.principal.source_ip if ctx.principal else None,
             "outcome": outcome,
             "code": error_code,
             "rule_id": denied.rule_id if denied else ctx.allow_rule,

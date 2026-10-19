@@ -34,6 +34,7 @@ ALLOWED_FIELDS = frozenset(
         "policy_version",
         "count",
         "version",
+        "source_ip",
     }
 )
 

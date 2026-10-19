@@ -65,6 +65,15 @@ async def expect_failure(auth: Authenticator, hdrs: dict[str, str], reason: str)
     assert info.value.reason == reason
 
 
+async def test_failure_carries_the_derived_source_ip(
+    policy_dir: Path, stores: Stores, clock: FakeClock
+) -> None:
+    auth = make_auth(policy_dir, stores, clock)
+    with pytest.raises(AuthFailure) as info:
+        await auth.authenticate({"x-forwarded-for": "198.51.100.9, 34.1.1.1"}, None)
+    assert info.value.source_ip == "198.51.100.9"
+
+
 async def test_missing_and_malformed_credentials(policy_dir: Path, stores: Stores, clock: FakeClock) -> None:
     auth = make_auth(policy_dir, stores, clock)
     await expect_failure(auth, {}, "missing_bearer")

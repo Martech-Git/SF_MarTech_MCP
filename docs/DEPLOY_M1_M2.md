@@ -187,7 +187,7 @@ Retention lock is irreversible. Lock the bucket only after legal confirms the pe
 | No grants, no tools | A client with no grants in `policy/clients.yaml` sees zero tools |
 | Audit lands | The `sfmcp-audit` bucket and `sfmcp_audit` dataset receive `sfmcp.audit.tool` and `sfmcp.audit.admin` events |
 
-One value to confirm on the first deploy: the server reads the caller's address from `X-Forwarded-For` at index -2 (the Google load balancer appends `<client-ip>, <lb-ip>`). Before any client uses a CIDR allowlist instead of `"*"`, confirm the logged address matches the real caller, and adjust `SFMCP_XFF_CLIENT_INDEX` if needed.
+One value to confirm on the first deploy: the server reads the caller's address from `X-Forwarded-For` at index -2 (the Google load balancer appends `<client-ip>, <lb-ip>`). Before any client uses a CIDR allowlist instead of `"*"`, call `/mcp` with a wrong key from a machine whose public IP you know, find the `auth failure` entry from logger `sf_mcp.security`, and check that its `source_ip` matches. Adjust `SFMCP_XFF_CLIENT_INDEX` if it does not.
 
 ## Deferred to milestone 6 (prod)
 

@@ -35,6 +35,7 @@ class AuthFailure(Exception):
         super().__init__(reason)
         self.reason = reason
         self.key_id = key_id
+        self.source_ip: str | None = None
 
 
 class Lockout:
@@ -125,6 +126,13 @@ class Authenticator:
 
     async def authenticate(self, headers: Mapping[str, str], peer_host: str | None) -> ClientPrincipal:
         ip = client_ip(headers, peer_host, self._xff_index)
+        try:
+            return await self._authenticate(headers, ip)
+        except AuthFailure as failure:
+            failure.source_ip = ip
+            raise
+
+    async def _authenticate(self, headers: Mapping[str, str], ip: str) -> ClientPrincipal:
         if self._lockout.is_blocked(f"ip:{ip}"):
             raise AuthFailure("source_blocked")
 
