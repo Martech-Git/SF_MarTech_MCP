@@ -1,0 +1,65 @@
+# sf-mcp build and deploy. One trigger per environment: merge to `dev` deploys dev, merge to `main` deploys prod.
+# Setup and substitution values: docs/DEPLOY_M1_M2.md.
+substitutions:
+  _ENV: dev
+  _REGION: us-east1
+  _AR_REPO: sf-mcp
+  _SERVICE: sf-mcp
+  _RUN_SA: sf-mcp-run@${PROJECT_ID}.iam.gserviceaccount.com
+  _IAP_AUDIENCE_ADMIN: /projects/PROJECT_NUMBER/global/backendServices/PENDING
+  _MIN_INSTANCES: "0"
+  _MAX_INSTANCES: "5"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  requestedVerifyOption: VERIFIED
+  dynamicSubstitutions: true
+
+steps:
+  - id: test
+    name: python:3.12-slim-bookworm
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements-dev.lock
+        ruff check .
+        ruff format --check .
+        mypy
+        pytest -q -p no:cacheprovider
+
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --pull
+      - --tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE}:${SHORT_SHA}
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: [push, "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE}:${SHORT_SHA}"]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE}"
+        DIGEST=$(gcloud artifacts docker images describe "$${IMAGE}:${SHORT_SHA}" --format='value(image_summary.digest)')
+        gcloud run deploy "${_SERVICE}" \
+          --image="$${IMAGE}@$${DIGEST}" \
+          --region="${_REGION}" \
+          --service-account="${_RUN_SA}" \
+          --ingress=internal-and-cloud-load-balancing \
+          --no-invoker-iam-check \
+          --execution-environment=gen2 \
+          --cpu=1 --memory=512Mi --concurrency=40 --timeout=60 \
+          --min-instances="${_MIN_INSTANCES}" --max-instances="${_MAX_INSTANCES}" \
+          --set-env-vars="SFMCP_ENV=${_ENV},SFMCP_GCP_PROJECT=${PROJECT_ID},SFMCP_STORE=firestore,SFMCP_OTEL_EXPORTER=gcp,SFMCP_IAP_AUDIENCE_ADMIN=${_IAP_AUDIENCE_ADMIN},SFMCP_KEY_PEPPER_FILE=/secrets/pepper/key" \
+          --set-secrets="/secrets/pepper/key=sfmcp-key-pepper:latest" \
+          --labels="app=sf-mcp,env=${_ENV},commit=${SHORT_SHA}"
+
+images:
+  - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_AR_REPO}/${_SERVICE}:${SHORT_SHA}

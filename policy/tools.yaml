@@ -1,0 +1,6 @@
+# One entry per registered tool. A registered tool without an entry stops the server at startup.
+tools:
+  health:
+    enabled: true
+    environments: [local, dev, staging, prod]
+    per_key_per_minute: 30

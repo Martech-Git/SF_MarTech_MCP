@@ -1,0 +1,14 @@
+# Server-side limits (SPEC sections 5 and 16, decision A8). Buckets are per instance.
+limits:
+  per_key_per_minute: 60
+  per_bu_per_minute: 300
+  # Below SFMC's 2,500 synchronous requests per minute, so the server throttles first.
+  tenant_sync_per_minute: 2000
+  page_default: 50
+  page_max: 200
+  sync_row_cap: 500
+  auth_failures_before_block: 10
+  auth_failure_window_seconds: 300
+  auth_block_seconds: 900
+  key_max_days: 90
+  keys_per_client: 2

@@ -1,0 +1,13 @@
+# Client integrations. A client's API keys are issued on /admin; its grants live here and change by PR only.
+# allowed_sources: CIDR ranges, or "*" for any source (laptop clients such as Claude Code).
+# max_tier caps what the client can ever reach, whatever its roles: T0 read, T1 to T3 writes.
+clients:
+  - client_id: build-team-claude-code
+    name: Build team, Claude Code
+    owner: ankit.bajpai01@nagarro.com
+    environments: [local, dev]
+    allowed_sources: ["*"]
+    max_tier: T0
+    grants:
+      - bu: sandbox
+        roles: [viewer]

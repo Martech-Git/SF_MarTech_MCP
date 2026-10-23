@@ -1,0 +1,8 @@
+# Business units the server knows. Grants and kill switches refer to the alias.
+# Changes need a PR with two approvals (SPEC section 12).
+business_units:
+  - alias: sandbox
+    # Placeholder MID. Replace with the SFMC sandbox BU MID before milestone 3 (SPEC A7).
+    mid: "0"
+    environments: [local, dev]
+    description: SFMC sandbox business unit and Data 360 demo data space
