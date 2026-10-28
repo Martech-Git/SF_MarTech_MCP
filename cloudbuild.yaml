@@ -1,6 +1,8 @@
 # sf-mcp build and deploy. One trigger per environment: merge to `dev` deploys dev, merge to `main` deploys prod.
 # Setup and substitution values: docs/DEPLOY_M1_M2.md.
 substitutions:
+  _INGRESS: "internal-and-cloud-load-balancing"
+  _INVOKER_IAM_FLAG: "--no-invoker-iam-check"
   _ENV: dev
   _REGION: us-east1
   _AR_REPO: sf-mcp
@@ -52,8 +54,8 @@ steps:
           --image="$${IMAGE}@$${DIGEST}" \
           --region="${_REGION}" \
           --service-account="${_RUN_SA}" \
-          --ingress=internal-and-cloud-load-balancing \
-          --no-invoker-iam-check \
+          --ingress="${_INGRESS}" \
+          ${_INVOKER_IAM_FLAG} \
           --execution-environment=gen2 \
           --cpu=1 --memory=512Mi --concurrency=40 --timeout=60 \
           --min-instances="${_MIN_INSTANCES}" --max-instances="${_MAX_INSTANCES}" \
