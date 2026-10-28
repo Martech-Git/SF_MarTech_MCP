@@ -153,6 +153,7 @@ def create_app(settings: Settings, overrides: Overrides | None = None) -> Starle
 
     return Starlette(
         routes=[
+            Route("/health", healthz, methods=["GET"]),
             Route("/healthz", healthz, methods=["GET"]),
             Route("/mcp", endpoint=mcp_endpoint, methods=["GET", "POST", "DELETE"]),
             *admin_routes,
