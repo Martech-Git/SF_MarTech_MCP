@@ -151,12 +151,26 @@ def create_app(settings: Settings, overrides: Overrides | None = None) -> Starle
         async with session_manager.run():
             yield
 
+    import os
+
+    service_role = os.environ.get("SFMCP_SERVICE_ROLE", "both").lower()
+    if service_role not in {"both", "mcp", "admin"}:
+        raise ValueError("Invalid SFMCP_SERVICE_ROLE")
+
+    routes = [
+        Route("/health", healthz, methods=["GET"]),
+        Route("/healthz", healthz, methods=["GET"]),
+    ]
+
+    if service_role in {"both", "mcp"}:
+        routes.append(
+            Route("/mcp", endpoint=mcp_endpoint, methods=["GET", "POST", "DELETE"])
+        )
+
+    if service_role in {"both", "admin"}:
+        routes.extend(admin_routes)
+
     return Starlette(
-        routes=[
-            Route("/health", healthz, methods=["GET"]),
-            Route("/healthz", healthz, methods=["GET"]),
-            Route("/mcp", endpoint=mcp_endpoint, methods=["GET", "POST", "DELETE"]),
-            *admin_routes,
-        ],
+        routes=routes,
         lifespan=lifespan,
     )

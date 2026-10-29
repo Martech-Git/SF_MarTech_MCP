@@ -59,7 +59,7 @@ steps:
           --execution-environment=gen2 \
           --cpu=1 --memory=512Mi --concurrency=40 --timeout=60 \
           --min-instances="${_MIN_INSTANCES}" --max-instances="${_MAX_INSTANCES}" \
-          --set-env-vars="SFMCP_ENV=${_ENV},SFMCP_GCP_PROJECT=${PROJECT_ID},SFMCP_STORE=firestore,SFMCP_OTEL_EXPORTER=gcp,SFMCP_IAP_AUDIENCE_ADMIN=${_IAP_AUDIENCE_ADMIN},SFMCP_KEY_PEPPER_FILE=/secrets/pepper/key" \
+          --set-env-vars="SFMCP_ENV=${_ENV},SFMCP_GCP_PROJECT=${PROJECT_ID},SFMCP_STORE=firestore,SFMCP_OTEL_EXPORTER=gcp,SFMCP_IAP_AUDIENCE_ADMIN=${_IAP_AUDIENCE_ADMIN},SFMCP_KEY_PEPPER_FILE=/secrets/pepper/key,SFMCP_SERVICE_ROLE=mcp" \
           --set-secrets="/secrets/pepper/key=sfmcp-key-pepper:latest" \
           --labels="app=sf-mcp,env=${_ENV},commit=${SHORT_SHA}"
 
