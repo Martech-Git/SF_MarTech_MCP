@@ -163,9 +163,7 @@ def create_app(settings: Settings, overrides: Overrides | None = None) -> Starle
     ]
 
     if service_role in {"both", "mcp"}:
-        routes.append(
-            Route("/mcp", endpoint=mcp_endpoint, methods=["GET", "POST", "DELETE"])
-        )
+        routes.append(Route("/mcp", endpoint=mcp_endpoint, methods=["GET", "POST", "DELETE"]))
 
     if service_role in {"both", "admin"}:
         routes.extend(admin_routes)
